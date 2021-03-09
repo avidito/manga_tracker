@@ -33,8 +33,5 @@ class DatabaseEngine:
         """
         Get result from corresponding job.
         """
-        job_id = job_id if (job_id) else self.job_id
-
-        # Get Data
         result = pd.read_csv('{}\{}.txt'.format(self.path, job_id), delimiter='|')[columns]
         print(result)

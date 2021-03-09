@@ -16,7 +16,10 @@ class Logger:
         report += 'Job ID: {}\n'.format(self.job_id)
         report += 'Start Time: {}\n'.format(self.start_time)
         report += 'End Time: {}\n'.format(self.end_time)
-        report += 'Link Crawled: {}\n'.format(self.link_crawled)
+
+        report += 'Link Crawled:\n'
+        for link in self.link_crawled:
+            report += "\t - {} | {} | {}\n".format(*link)
 
         return report
 
@@ -50,3 +53,14 @@ class Logger:
         report = self._generate_report()
         with open('{}\{}.txt'.format(self.path, self.job_id), 'w') as f:
             f.write(report)
+
+    def show_log(self, job_id=None):
+        """
+        Get log from corresponding job.
+        """
+        job_id = job_id if (job_id) else self.job_id
+
+        # Get Log
+        with open('{}\{}.txt'.format(self.path, job_id), 'r') as f:
+            log = f.read()
+        print(log)
