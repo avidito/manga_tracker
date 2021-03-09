@@ -8,7 +8,7 @@ from .log import Logger
 
 class MangaTracker:
     """
-    Web-Scraping Main Engine
+    Web-Scraping Main Engine.
     """
     def __init__(self, bounty='bounty.json', output='outputs', log='logs'):
         self.bh = BountyHandler(bounty)
@@ -82,15 +82,14 @@ class MangaTracker:
         self._init_job()
 
         # Start scraping each target
-        for target in self.bh.targets:
-            website = target['website']
-            titles = target['titles']
-            urls = target['urls']
+        for bounty in self.bh.bounty['bounty']:
+            website = bounty['website']
+            targets = bounty['targets']
 
-        # Scrape each link
-        for (title, url) in zip(titles, urls):
-            data, response = self._scrape(url)
-            self._load(title, data, response)
+            # Scrape each link
+            for (alias, url) in targets:
+                data, response = self._scrape(url)
+                self._load(alias, data, response)
 
         # Logging job
         self._end_job()

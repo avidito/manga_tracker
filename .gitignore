@@ -4,4 +4,6 @@ logs/
 
 main.py
 plan.txt
+bounty.json
+
 __pycache__/
