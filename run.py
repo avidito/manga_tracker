@@ -26,5 +26,15 @@ def show_bounty():
     result = MangaTracker.show_bounty()
     print(result)
 
+@cli.command('add-target')
+@click.option('--website', '-w')
+@click.option('--alias', '-a')
+@click.option('--link', '-l')
+def add_target(**kw):
+    """
+    Add target to bounty list.
+    """
+    MangaTracker.add_target(kw)
+
 if __name__ == '__main__':
     cli()

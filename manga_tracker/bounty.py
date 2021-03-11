@@ -17,37 +17,37 @@ class BountyHandler:
             bounty = json.loads(f.read())
         return bounty['groups']
 
-    def _check(self, website, target=None):
+    @staticmethod
+    def _check(website, target=None, path='bounty.json'):
         """
         Check if group of website (and/or target) exist.
         """
-        # Check Group
+        bounty_list = BountyHandler._read_bounty(path)
+
+        # Check Group. If not found, return error
         group = None
-        for bounty in self.bounty:
+        for bounty in bounty_list:
             if (bounty['website'] == website):
                 group = bounty
                 break
-
-        # If group is not exist, return error
         if (group is None):
             return -2
         elif (target is None):
-            return group
+            return bounty_list, group
 
-        # If checking target, check target in group
+        # Check Target,. If not found return error
         for gt in group['targets']:
             if (gt[0] == target):
-                return group
-
-        # If not found target, return error
+                return bounty_list, group
         return -1
 
-    def _reconstruct(self, msg=None):
+    @staticmethod
+    def _reconstruct(bounty, msg=None, path='bounty.json'):
         """
         Reconstruct bounty list.
         """
-        with open(self.path, 'w') as f:
-            f.write(json.dumps({'groups': self.bounty}))
+        with open(path, 'w') as f:
+            f.write(json.dumps({'groups': bounty}))
         print(msg)
 
     @staticmethod
@@ -64,20 +64,24 @@ class BountyHandler:
             result += '\n'
         return result
 
-    def add_target(self, website, alias, link):
+    @staticmethod
+    def add_target(website, alias, link):
         """
         Add target to bounty list.
         """
         # Find target
-        group = self._check(website)
-        if (group == -2):
-            return "Group with website {} not found!".format(website)
+        result = BountyHandler._check(website)
+        if (result == -2):
+            return "Group with website '{}' not found!".format(website)
+        else:
+            bounty_list, group = result
 
         # Add target to group
         group['targets'].append([alias, link])
 
         # Reconstruct bounty file
-        self._reconstruct("Successfully add '{}' to '{}'".format(alias, website))
+        BountyHandler._reconstruct(bounty_list,
+            "Successfully add '{}' to '{}'".format(alias, website))
 
     def remove_target(self, website, alias):
         """
@@ -97,7 +101,8 @@ class BountyHandler:
                 break
 
         # Reconstruct bounty file
-        self._reconstruct("Successfully remove '{}' from '{}'".format(alias, website))
+        BountyHandler._reconstruct(bounty_list,
+            "Successfully remove '{}' from '{}'".format(alias, website))
 
     def update_target(self, website, alias, new_alias=None, new_link=None):
         """
@@ -121,4 +126,4 @@ class BountyHandler:
         p_target[1] = new_link if (new_link) else p_target[1]
 
         # Reconstruct bounty file
-        self._reconstruct("Successfully changed '{}' from '{}'".format(alias, website))
+        BountyHandler._reconstruct("Successfully changed '{}' from '{}'".format(alias, website))

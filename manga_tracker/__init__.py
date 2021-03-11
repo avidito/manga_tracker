@@ -100,6 +100,6 @@ class MangaTracker:
         log.log_end()
         log.show_log()
 
-    # Bounty Handler
-    @staticmethod
-    def show_bounty(): return BountyHandler.show_bounty()
+# Bounty Handler
+MangaTracker.show_bounty = staticmethod(lambda: BountyHandler.show_bounty())
+MangaTracker.add_target = staticmethod(lambda kw: BountyHandler.add_target(**kw))
