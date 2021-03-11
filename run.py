@@ -6,7 +6,7 @@ from manga_tracker.bounty import BountyHandler
 from manga_tracker.database import DatabaseEngine
 
 # OOP CLI format
-from manga_tracker import MangaTracker as mt
+from manga_tracker import MangaTracker
 
 @click.group()
 def cli():
@@ -14,23 +14,8 @@ def cli():
 
 @cli.command('crawl')
 def crawl():
-    # Deleted soon
-    log = Logger('logs')
-    bh = BountyHandler('bounty.json')
-    db = DatabaseEngine('outputs')
-
-    # Initiate job
-    job_id = log.log_start()
-    groups = bh.groups
-    db.init_db(job_id)
-
-    # Scraping each target
-    mt.crawl(groups, log, db)
-
-    # End job
-    log.log_end()
-    log.show_log()
-
+    handler = MangaTracker.init_job()
+    MangaTracker.crawl(**handler)
 
 if __name__ == '__main__':
     cli()

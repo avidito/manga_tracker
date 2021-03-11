@@ -6,8 +6,6 @@ from .bounty import BountyHandler
 from .database import DatabaseEngine
 from .log import Logger
 
-
-
 class MangaTracker:
     """
     Web-Scraping Main Engine.
@@ -67,13 +65,38 @@ class MangaTracker:
         log.log_end()
 
     @staticmethod
+    def init_job(log_path='logs', bounty_path='bounty.json', db_path='outputs'):
+        """
+        Initiate job by reading bounty and define job metada.
+        """
+        log = Logger(log_path)
+        bh = BountyHandler(bounty_path)
+        db = DatabaseEngine(db_path)
+
+        # Initiate metadata
+        job_id = log.log_start()
+        groups = bh.groups
+        db.init_db(job_id)
+        handler = {
+            'log': log,
+            'db': db,
+            'groups': groups
+        }
+        return handler
+
+    @staticmethod
     def crawl(groups, log, db):
         """
         Run the web-crawling process.
         """
+        # Start crawling
         for group in groups:
             website = group['website']
             targets = group['targets']
             for (title, url) in targets:
                 data, response = MangaTracker._scrape(url)
                 MangaTracker._load(title, data, response, log, db)
+
+        # End job
+        log.log_end()
+        log.show_log()
