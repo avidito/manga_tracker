@@ -13,7 +13,7 @@ def cli():
 @cli.command('crawl')
 def crawl():
     """
-    Start crawling process.
+    Start web-crawling process.
     """
     handler = MangaTracker.init_job()
     MangaTracker.crawl(**handler)
@@ -34,7 +34,19 @@ def add_target(**kw):
     """
     Add target to bounty list.
     """
-    MangaTracker.add_target(kw)
+    message = MangaTracker.add_target(kw)
+    print(message)
+
+@cli.command('remove-target')
+@click.option('--website', '-w')
+@click.option('--alias', '-a')
+def remove_target(**kw):
+    """
+    Remove target from bounty list.
+    """
+    message = MangaTracker.remove_target(kw)
+    print(message)
+
 
 if __name__ == '__main__':
     cli()

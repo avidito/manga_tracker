@@ -48,7 +48,7 @@ class BountyHandler:
         """
         with open(path, 'w') as f:
             f.write(json.dumps({'groups': bounty}))
-        print(msg)
+        return msg
 
     @staticmethod
     def show_bounty(path='bounty.json'):
@@ -80,19 +80,23 @@ class BountyHandler:
         group['targets'].append([alias, link])
 
         # Reconstruct bounty file
-        BountyHandler._reconstruct(bounty_list,
-            "Successfully add '{}' to '{}'".format(alias, website))
+        message = BountyHandler._reconstruct(bounty_list,
+                    "Successfully add '{}' to '{}'".format(alias, website))
+        return message
 
-    def remove_target(self, website, alias):
+    @staticmethod
+    def remove_target(website, alias):
         """
         Remove target from bounty list.
         """
         # Find target
-        group = self._check(website, alias)
-        if (group == -2):
-            return "Group with website {} not found!".format(website)
-        elif (group == -1):
+        result = BountyHandler._check(website, alias)
+        if (result == -2):
+            return "Group with website '{}' not found!".format(website)
+        elif (result == -1):
             return "Group with target {} not found!".format(alias)
+        else:
+            bounty_list, group = result
 
         # Remove target from group
         for target in group['targets']:
@@ -101,8 +105,9 @@ class BountyHandler:
                 break
 
         # Reconstruct bounty file
-        BountyHandler._reconstruct(bounty_list,
-            "Successfully remove '{}' from '{}'".format(alias, website))
+        message = BountyHandler._reconstruct(bounty_list,
+                    "Successfully remove '{}' from '{}'".format(alias, website))
+        return message
 
     def update_target(self, website, alias, new_alias=None, new_link=None):
         """

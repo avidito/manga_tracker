@@ -103,3 +103,4 @@ class MangaTracker:
 # Bounty Handler
 MangaTracker.show_bounty = staticmethod(lambda: BountyHandler.show_bounty())
 MangaTracker.add_target = staticmethod(lambda kw: BountyHandler.add_target(**kw))
+MangaTracker.remove_target = staticmethod(lambda kw: BountyHandler.remove_target(**kw))
