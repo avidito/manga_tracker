@@ -4,17 +4,13 @@ class LogHandler:
     """
     Module to Read, Load, and Represent Job Logs
     """
-    def __init__(self, path):
-        self.path = path
-        self.column = ['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']
-
     @staticmethod
     def _dtlog(msg):
         """
         Embed Log Time to Message
         """
         now = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-        return "{} {}\n".format(now, msg)
+        return "[{}] {}\n".format(now, msg)
 
     @staticmethod
     def log_start(path):
@@ -24,36 +20,36 @@ class LogHandler:
         # Init Job Id
         dt_start_time = datetime.now()
         job_id = dt_start_time.strftime("%Y%m%d%H%M")
-        LogHandler.logging(path, job_id, 'Job Id: {}'.format(job_id))
+        LogHandler.logging(path, 'Job Id: {}'.format(job_id), mode='w')
 
         # Log Start Time
         start_time = dt_start_time.strftime('%d/%m/%Y %H:%M:%S')
-        LogHandler.logging(path, job_id, 'Start Time: {}'.format(start_time))
+        LogHandler.logging(path, 'Start Time: {}'.format(start_time))
 
         return job_id
 
     @staticmethod
-    def log_scrape(path, job_id, title, response):
+    def logging(path, msg, mode='a'):
+        """
+        Create initiation activity log.
+        """
+        with open('{}.txt'.format(path), mode) as f:
+            f.write(LogHandler._dtlog(msg))
+
+    @staticmethod
+    def log_scrape(path, title, response):
         """
         Create scraping log.
         """
-        LogHandler.logging(path, job_id, '{} - Response: {}'.format(title, response))
+        LogHandler.logging(path, '{} - Response: {}'.format(title, response))
 
     @staticmethod
-    def log_end(path, job_id):
+    def log_end(path):
         """
         Create end of job log.
         """
         end_time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-        LogHandler.logging(path, job_id, 'End Time: {}\n'.format(end_time))
-
-    @staticmethod
-    def logging(path, job_id, msg):
-        """
-        Create initiation activity log.
-        """
-        with open('{}\{}.txt'.format(path, job_id), 'a') as f:
-            f.write(LogHandler._dtlog(msg))
+        LogHandler.logging(path, 'End Time: {}\n'.format(end_time))
 
     def show_log(self, job_id=None):
         """

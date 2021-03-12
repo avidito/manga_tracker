@@ -3,6 +3,7 @@ outputs/
 logs/
 
 plan.txt
+logs.txt
 bounty.json
 
-__pycache__/
+*/__pycache__/

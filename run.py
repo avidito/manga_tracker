@@ -17,6 +17,7 @@ def crawl():
     """
     handler = MangaTracker.init_job()
     MangaTracker.crawl(**handler)
+    MangaTracker.end_job()
 
 @cli.command('show-bounty')
 def show_bounty():
