@@ -1,92 +1,99 @@
 import json
 
-from .database import DatabaseEngine
-from .log import Logger
-
 class BountyHandler:
     """
     Module to Use and Manage Bounty List.
     """
-    def __init__(self, path):
-        self.path = path
-        self.groups = self._read_bounty()
 
-    def _read_bounty(self):
+    @staticmethod
+    def _read_bounty(path):
         """
         Validate and read bounty list.
         """
-        with open(self.path, 'r') as f:
+        with open(path, 'r') as f:
             bounty = json.loads(f.read())
         return bounty['groups']
 
-    def _check(self, website, target=None):
+    @staticmethod
+    def _check(website, target=None, path='bounty.json'):
         """
         Check if group of website (and/or target) exist.
         """
-        # Check Group
+        bounty_list = BountyHandler._read_bounty(path)
+
+        # Check Group. If not found, return error
         group = None
-        for bounty in self.bounty:
+        for bounty in bounty_list:
             if (bounty['website'] == website):
                 group = bounty
                 break
-
-        # If group is not exist, return error
         if (group is None):
             return -2
         elif (target is None):
-            return group
+            return bounty_list, group
 
-        # If checking target, check target in group
+        # Check Target,. If not found return error
         for gt in group['targets']:
             if (gt[0] == target):
-                return group
-
-        # If not found target, return error
+                return bounty_list, group
         return -1
 
-    def _reconstruct(self, msg=None):
+    @staticmethod
+    def _reconstruct(bounty, msg=None, path='bounty.json'):
         """
         Reconstruct bounty list.
         """
-        with open(self.path, 'w') as f:
-            f.write(json.dumps({'groups': self.bounty}))
-        print(msg)
+        with open(path, 'w') as f:
+            f.write(json.dumps({'groups': bounty}))
+        return msg
 
-    def show_bounty(self):
+    @staticmethod
+    def show_bounty(path='bounty.json'):
         """
-        Show all target in bounty list.
+        Show all targets in bounty list.
         """
-        for bounty in self.bounty:
-            print("Website: {}\nTargets:".format(bounty['website']))
+        bounty_list = BountyHandler._read_bounty(path)
+        result = ''
+        for bounty in bounty_list:
+            result += 'Website: {}\nTargets:\n'.format(bounty['website'])
             for target in bounty['targets']:
-                print("- {}\n\t{}".format(*target))
-            print('')
+                result += '- {}\n\t{}\n'.format(*target)
+            result += '\n'
+        return result
 
-    def add_target(self, website, alias, link):
+    @staticmethod
+    def add_target(website, alias, link):
         """
         Add target to bounty list.
         """
         # Find target
-        group = self._check(website)
-        if (group == -2):
-            return "Group with website {} not found!".format(website)
+        result = BountyHandler._check(website)
+        if (result == -2):
+            return "Group with website '{}' not found!".format(website)
+        else:
+            bounty_list, group = result
 
         # Add target to group
         group['targets'].append([alias, link])
 
         # Reconstruct bounty file
-        self._reconstruct("Successfully add '{}' to '{}'".format(alias, website))
+        message = BountyHandler._reconstruct(bounty_list,
+                    "Successfully add '{}' to '{}'".format(alias, website))
+        return message
 
-    def remove_target(self, website, alias):
+    @staticmethod
+    def remove_target(website, alias):
         """
         Remove target from bounty list.
         """
         # Find target
-        group = self._check(website, alias)
-        if (group == -2):
-            return "Group with website {} not found!".format(website)
-        elif (group == -1):
+        result = BountyHandler._check(website, alias)
+        if (result == -2):
+            return "Group with website '{}' not found!".format(website)
+        elif (result == -1):
             return "Group with target {} not found!".format(alias)
+        else:
+            bounty_list, group = result
 
         # Remove target from group
         for target in group['targets']:
@@ -95,18 +102,23 @@ class BountyHandler:
                 break
 
         # Reconstruct bounty file
-        self._reconstruct("Successfully remove '{}' from '{}'".format(alias, website))
+        message = BountyHandler._reconstruct(bounty_list,
+                    "Successfully remove '{}' from '{}'".format(alias, website))
+        return message
 
-    def update_target(self, website, alias, new_alias=None, new_link=None):
+    @staticmethod
+    def update_target(website, alias, newalias=None, newlink=None):
         """
         Update existing target in bounty list.
         """
         # Find target
-        group = self._check(website, alias)
-        if (group == -2):
-            return "Group with website {} not found!".format(website)
-        elif (group == -1):
+        result = BountyHandler._check(website, alias)
+        if (result == -2):
+            return "Group with website '{}' not found!".format(website)
+        elif (result == -1):
             return "Group with target {} not found!".format(alias)
+        else:
+            bounty_list, group = result
 
         # Get target from group
         for target in group['targets']:
@@ -115,8 +127,10 @@ class BountyHandler:
                 break
 
         # Edit alias (and/or link) value
-        p_target[0] = new_alias if (new_alias) else p_target[0]
-        p_target[1] = new_link if (new_link) else p_target[1]
+        p_target[0] = newalias if (newalias) else p_target[0]
+        p_target[1] = newlink if (newlink) else p_target[1]
 
         # Reconstruct bounty file
-        self._reconstruct("Successfully changed '{}' from '{}'".format(alias, website))
+        message = BountyHandler._reconstruct(bounty_list,
+                    "Successfully changed '{}' from '{}'".format(alias, website))
+        return message

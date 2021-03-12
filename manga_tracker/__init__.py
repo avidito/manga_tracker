@@ -67,15 +67,14 @@ class MangaTracker:
     @staticmethod
     def init_job(log_path='logs', bounty_path='bounty.json', db_path='outputs'):
         """
-        Initiate job by reading bounty and define job metada.
+        Initiate job by reading bounty and define job metadata.
         """
         log = Logger(log_path)
-        bh = BountyHandler(bounty_path)
         db = DatabaseEngine(db_path)
 
         # Initiate metadata
         job_id = log.log_start()
-        groups = bh.groups
+        groups = BountyHandler._read_bounty(bounty_path)
         db.init_db(job_id)
         handler = {
             'log': log,
@@ -100,3 +99,9 @@ class MangaTracker:
         # End job
         log.log_end()
         log.show_log()
+
+# Bounty Handler
+MangaTracker.show_bounty = staticmethod(lambda: BountyHandler.show_bounty())
+MangaTracker.add_target = staticmethod(lambda kw: BountyHandler.add_target(**kw))
+MangaTracker.remove_target = staticmethod(lambda kw: BountyHandler.remove_target(**kw))
+MangaTracker.update_target = staticmethod(lambda kw: BountyHandler.update_target(**kw))
