@@ -1,32 +1,30 @@
 import pandas as pd
 
-class DatabaseEngine:
+class OutputHandler:
     """
     Bridge from Web Crawler to Database
     """
-    def __init__(self, path):
-        self.path = path
-        self.columns = ['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']
-
-    def init_db(self, job_id, delimiter='|'):
+    @staticmethod
+    def init_output(path, job_id, delimiter='|', columns=['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """
-        Initiate database (output file).
+        Initiate output file.
         """
-        with open('{}\{}.txt'.format(self.path, job_id), 'w') as f:
-            f.write(delimiter.join(self.columns) + '\n')
+        with open('{}\{}.txt'.format(path, job_id), 'w') as f:
+            f.write(delimiter.join(columns) + '\n')
 
-    def load_data(self, alias, job_id, data):
+    @staticmethod
+    def load_data(out_path, alias, job_id, data, columns=['alias', 'title', 'authors', 'ongoing', 'genres', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """
         Convert data to row format and load to database
         """
         # Transform data to row format
         trans_data = ''
-        for col in self.columns[1:]:
+        for col in columns[1:]:
             trans_data += '|{}'.format(data[col])
         row = alias + trans_data
 
         # Load to database
-        with open('{}\{}.txt'.format(self.path, job_id), 'a', encoding="utf-8") as f:
+        with open('{}\{}.txt'.format(out_path, job_id), 'a', encoding="utf-8") as f:
             f.write(row + '\n')
 
     def show_result(self, job_id, columns=['alias', 'latest_chapter', 'updated_at']):
