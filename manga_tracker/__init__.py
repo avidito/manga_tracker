@@ -64,11 +64,11 @@ class MangaTracker:
         """
         job_id = LogHandler.log_start(log_path)
         groups = BountyHandler._read_bounty(bounty_path)
-        LogHandler.logging(log_path, 'Target aquired from bounty file. X target(s).')
+        LogHandler.logging(log_path, '[Init] Target aquired from bounty file. X target(s).')
 
         db = DatabaseEngine(db_path)
         db.init_db(job_id)
-        LogHandler.logging(log_path, 'Database connection successfully created.')
+        LogHandler.logging(log_path, '[Init] Database connection successfully created.')
 
         handler = {
             'db': db,
@@ -102,3 +102,6 @@ MangaTracker.show_bounty = staticmethod(lambda: BountyHandler.show_bounty())
 MangaTracker.add_target = staticmethod(lambda kw: BountyHandler.add_target(**kw))
 MangaTracker.remove_target = staticmethod(lambda kw: BountyHandler.remove_target(**kw))
 MangaTracker.update_target = staticmethod(lambda kw: BountyHandler.update_target(**kw))
+
+# Log Handler
+MangaTracker.show_log = staticmethod(lambda: LogHandler.show_log())

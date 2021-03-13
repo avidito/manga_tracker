@@ -60,5 +60,12 @@ def update_target(**kw):
     message = MangaTracker.update_target(kw)
     print(message)
 
+@cli.command('show-log')
+def show_log():
+    """
+    Get log from corresponding job.
+    """
+    MangaTracker.show_log()
+
 if __name__ == '__main__':
     cli()
