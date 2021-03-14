@@ -1,9 +1,8 @@
 venv/
-outputs/
-logs/
 
 plan.txt
 logs.txt
+outputs.txt
 bounty.json
 
 */__pycache__/
