@@ -142,10 +142,10 @@ class MangaTracker:
         LogHandler.log_end(log_path)
 
 # Handler Utilization
-MangaTracker.show_bounty = staticmethod(lambda: BountyHandler.show_bounty())
-MangaTracker.add_target = staticmethod(lambda kw: BountyHandler.add_target(**kw))
-MangaTracker.remove_target = staticmethod(lambda kw: BountyHandler.remove_target(**kw))
-MangaTracker.update_target = staticmethod(lambda kw: BountyHandler.update_target(**kw))
-MangaTracker.show_log = staticmethod(lambda: LogHandler.show_log())
-MangaTracker.show_output = staticmethod(lambda: OutputHandler.show_output())
-MangaTracker.result = staticmethod(lambda: OutputHandler.result())
+MangaTracker.show_bounty = staticmethod(BountyHandler.show_bounty)
+MangaTracker.add_target = staticmethod(BountyHandler.add_target)
+MangaTracker.remove_target = staticmethod(BountyHandler.remove_target)
+MangaTracker.update_target = staticmethod(BountyHandler.update_target)
+MangaTracker.show_log = staticmethod(LogHandler.show_log)
+MangaTracker.show_output = staticmethod(OutputHandler.show_output)
+MangaTracker.result = staticmethod(OutputHandler.result)

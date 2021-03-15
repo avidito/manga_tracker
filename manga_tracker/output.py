@@ -2,8 +2,9 @@ from datetime import datetime, timedelta
 
 class OutputHandler:
     """
-    Handler to create and show job outputs.
+    [Static Method] Handler to create and show job outputs.
     """
+    
     @staticmethod
     def init_output(path, delimiter='|', columns=['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """

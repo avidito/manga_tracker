@@ -2,8 +2,9 @@ from datetime import datetime
 
 class LogHandler:
     """
-    Handler to create and show job logs.
+    [Static Class] Handler to create and show job logs.
     """
+    
     @staticmethod
     def _dtlog(message):
         """
