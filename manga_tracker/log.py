@@ -2,7 +2,7 @@ from datetime import datetime
 
 class LogHandler:
     """
-    Module to Read, Load, and Represent Job Logs
+    Handler to create and show job logs.
     """
     @staticmethod
     def _dtlog(msg):

@@ -8,22 +8,40 @@ from .output import OutputHandler
 
 class MangaTracker:
     """
-    Web-Scraping Main Engine.
+    [Static Class] Main interface to manga web crawling job.
     """
 
     @staticmethod
     def _preproccess(data):
         """
-        Preprocessing scraped data.
+        Return preprocessed data.
+
+        Parameters
+        ----------
+            data        : dict. Raw input data that needed to be processed.
+
+        Returns
+        -------
+            processed   : dict. Proccesed data from preprocessing input data.
         """
-        data['ongoing'] = 1 if (data['ongoing'].lower() == 'ongoing') else  0
-        data['updated_at'] = datetime.strptime(data['updated_at'], '%b %d,%Y - %H:%M %p').strftime('%d-%m-%Y %H:%M')
-        return data
+        processed = data.copy()
+        processed['ongoing'] = 1 if (processed['ongoing'].lower() == 'ongoing') else  0
+        processed['updated_at'] = datetime.strptime(processed['updated_at'], '%b %d,%Y - %H:%M %p').strftime('%d-%m-%Y %H:%M')
+        return processed
 
     @staticmethod
     def _scrape(url):
         """
-        Scraping proccess.
+        Start scraping page with inputted URL.
+
+        Parameters
+        ----------
+            url     : str. Manga (target) main page URL.
+
+        Returns
+        -------
+            data    : dict. Extracted data from web scraping in dictionary format.
+            response: int. Request status code while trying to get web page.
         """
         # Get and parse page
         req = requests.get(url)
@@ -48,17 +66,36 @@ class MangaTracker:
         return data, req.status_code
 
     @staticmethod
-    def _load(title, response, data, log_path, out_path):
+    def _load(alias, response, data, log_path, out_path):
         """
         Load data to database and log.
-        """
-        LogHandler.log_scrape(log_path, title, response)
-        OutputHandler.load_data(out_path, title, data)
 
+        Parameters
+        ----------
+            alias   : str. Defined manga alias for output and log result.
+            response: int. Request status code while trying to get web page.
+            data    : dict. Extracted data from web scraping in dictionary format.
+            log_path: str. Pathname for log file (please insert fullpath to filename).
+            out_path: str. Pathname for output file (please insert fullpath to filename).
+        """
+        LogHandler.log_scrape(log_path, alias, response)
+        OutputHandler.load_data(out_path, alias, data)
+
+    # Public Method
     @staticmethod
-    def init_job(log_path='logs', bounty_path='bounty.json', out_path='outputs'):
+    def init_job(bounty_path='bounty.json', log_path='logs', out_path='outputs'):
         """
         Initiate job by reading bounty and define job metadata.
+
+        Parameters
+        ----------
+            bounty_path : str (default='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
+            log_path    : str (default='logs'). Pathname for log file (please insert fullpath to filename).
+            out_path    : str (default='outputs'). Pathname for output file (please insert fullpath to filename).
+
+        Returns
+        -------
+            meta        : dict. Dictionary of job metadata and extracted bounty target list.
         """
         LogHandler.log_start(log_path)
 
@@ -68,17 +105,23 @@ class MangaTracker:
         OutputHandler.init_output(out_path)
         LogHandler.logging(log_path, '[Init] Output file successfully created.')
 
-        handler = {
+        meta = {
             'groups': groups,
             'log_path': log_path,
             'out_path': out_path
         }
-        return handler
+        return meta
 
     @staticmethod
     def crawl(groups, log_path, out_path):
         """
         Run the web-crawling process.
+
+        Parameters
+        ----------
+            groups  : list. List of groups (website) and its Manga targets information.
+            log_path: str. Pathname for log file (please insert fullpath to filename).
+            out_path: str. Pathname for output file (please insert fullpath to filename).
         """
         for group in groups:
             website = group['website']
@@ -91,6 +134,10 @@ class MangaTracker:
     def end_job(log_path='logs'):
         """
         End job.
+
+        Parameters
+        ----------
+            log_path: str (default='logs'). Pathname for log file (please insert fullpath to filename).
         """
         LogHandler.log_end(log_path)
 

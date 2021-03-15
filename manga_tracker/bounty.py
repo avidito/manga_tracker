@@ -2,7 +2,7 @@ import json
 
 class BountyHandler:
     """
-    Module to Use and Manage Bounty List.
+    Handler to use and manage bounty list.
     """
 
     @staticmethod

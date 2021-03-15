@@ -1,9 +1,8 @@
 import click
-
-# OOP CLI format
 from manga_tracker import MangaTracker
 
 @click.group()
+@click.version_option(version='1.0', prog_name='mantrack')
 def cli():
     """
     CLI Program to Track Updated Manga using Web-Scraping (bs4).
@@ -15,8 +14,8 @@ def crawl():
     """
     Start web-crawling process.
     """
-    handler = MangaTracker.init_job()
-    MangaTracker.crawl(**handler)
+    meta = MangaTracker.init_job()
+    MangaTracker.crawl(**meta)
     MangaTracker.end_job()
 
 @cli.command('show-bounty')
