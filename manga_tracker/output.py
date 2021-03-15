@@ -2,12 +2,19 @@ from datetime import datetime, timedelta
 
 class OutputHandler:
     """
-    Handler to create and show job outputs.
+    [Static Method] Handler to create and show job outputs.
     """
+    
     @staticmethod
     def init_output(path, delimiter='|', columns=['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """
-        Initiate output file.
+        Initiate output file by pathname.
+
+        Paramaters
+        ----------
+            path        : str. Pathname for output file (please insert fullpath to filename).
+            delimiter   : str (default="|"). Delimiter used for separating data.
+            columns     : list (default=["alias", "title", "ongoing", "updated_at", "latest_chapter", "latest_chapter_link"]). List of columns used for output data.
         """
         with open('{}.txt'.format(path), 'w') as f:
             f.write(delimiter.join(columns) + '\n')
@@ -15,7 +22,14 @@ class OutputHandler:
     @staticmethod
     def load_data(out_path, alias, data, columns=['alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']):
         """
-        Convert data to row format and load to database
+        Convert data to row format and load to database.
+
+        Parameters
+        ----------
+            out_path: str. Pathname for output file (please insert fullpath to filename).
+            alias   : str. Defined manga alias for output and log result.
+            data    : dict. Extracted data that want to be loaded to outputs file.
+            columns : list (default=["alias", "title", "ongoing", "updated_at", "latest_chapter", "latest_chapter_link"]). List of columns used for output data.
         """
         # Transform data to row format
         trans_data = ''
@@ -31,6 +45,11 @@ class OutputHandler:
     def show_output(out_path='outputs', delimiter='|'):
         """
         Show full crawling result in table format.
+
+        Parameters
+        ----------
+            out_path    : str (default="outputs"). Pathname for output file (please insert fullpath to filename).
+            delimiter   : str (default="|"). Delimiter used for separating data.
         """
         with open('{}.txt'.format(out_path), 'r', encoding="utf-8") as f:
             raw = f.read()
@@ -46,6 +65,11 @@ class OutputHandler:
     def result(out_path='outputs', delimiter='|'):
         """
         Show crawling result summary.
+
+        Parameters
+        ----------
+            out_path    : str (default="outputs"). Pathname for output file (please insert fullpath to filename).
+            delimiter   : str (default="|"). Delimiter used for separating data.
         """
         with open('{}.txt'.format(out_path), 'r', encoding="utf-8") as f:
             raw = f.read()

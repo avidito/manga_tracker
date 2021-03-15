@@ -2,13 +2,17 @@ import json
 
 class BountyHandler:
     """
-    Module to Use and Manage Bounty List.
+    [Static Class] Handler to use and manage bounty list.
     """
 
     @staticmethod
     def _read_bounty(path):
         """
-        Validate and read bounty list.
+        Validate and read bounty list from path.
+
+        Parameters
+        ----------
+            path    : str. Pathname for bounty file (please insert fullpath to filename and extension).
         """
         with open(path, 'r') as f:
             bounty = json.loads(f.read())
@@ -17,7 +21,21 @@ class BountyHandler:
     @staticmethod
     def _check(website, target=None, path='bounty.json'):
         """
-        Check if group of website (and/or target) exist.
+        Check if group with website (and/or target) exist in bounty list.
+
+        Parameters
+        ----------
+            website     : str. To be checked website from bounty groups.
+            target      : str (default=None). To be checked target from website's group. Give value only if checking target existence.
+            path        : str (default='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
+
+        Returns
+        -------
+        if group (or target) exist:
+            bounty_list : dict. Full list of groups from bounty list.
+            group       : dict. Group with inputted website (and target).
+        else:
+            error_code  : int. (-1) if group doesn't exist. (-2) if target doesn't exist.
         """
         bounty_list = BountyHandler._read_bounty(path)
 
@@ -39,9 +57,19 @@ class BountyHandler:
         return -1
 
     @staticmethod
-    def _reconstruct(bounty, msg=None, path='bounty.json'):
+    def _reconstruct(bounty, message=None, path='bounty.json'):
         """
-        Reconstruct bounty list.
+        Reconstruct bounty list with new bounty list.
+
+        Parameters
+        ----------
+            bounty  : dict. New bounty list data as bounty list blueprint.
+            message : str (default=None). Message for successfull reconstruct attempt.
+            path    : str (deafult='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
+
+        Returns
+        -------
+            message : str. Message upon successfull bounty list reconstruct attempt.
         """
         with open(path, 'w') as f:
             f.write(json.dumps({'groups': bounty}))
@@ -51,6 +79,14 @@ class BountyHandler:
     def show_bounty(path='bounty.json'):
         """
         Show all targets in bounty list.
+
+        Parameters
+        ----------
+            path    : str (default='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
+
+        Returns
+        -------
+            result  : str. Extracted bounty list with better visual format.
         """
         bounty_list = BountyHandler._read_bounty(path)
         result = ''
@@ -65,6 +101,16 @@ class BountyHandler:
     def add_target(website, alias, link):
         """
         Add target to bounty list.
+
+        Paramaters
+        ----------
+            website : str. Existing website that will be added with new target.
+            alias   : str. New manga title (or alias) to be inputted.
+            link    : str. New manga main page URL to be inputted.
+
+        Returns
+        -------
+            message : str. Message upon successfull add target attempt.
         """
         # Find target
         result = BountyHandler._check(website)
@@ -85,6 +131,15 @@ class BountyHandler:
     def remove_target(website, alias):
         """
         Remove target from bounty list.
+
+        Parameters
+        ----------
+            website : str. Existing website where the target is grouped.
+            alias   : str. Existing manga title (or alias) to be removed.
+
+        Returns
+        -------
+            message : str. Message upon successfull remove target attempt.
         """
         # Find target
         result = BountyHandler._check(website, alias)
@@ -110,6 +165,20 @@ class BountyHandler:
     def update_target(website, alias, newalias=None, newlink=None):
         """
         Update existing target in bounty list.
+
+        Parameters
+        ----------
+            website : str. Existing website where the target is grouped.
+            alias   : str. Existing manga title (or alias) to be updated.
+            newalias: str (default=None). New manga title (or alias) for existing manga. Give value only if changing target alias.
+            newlink : str (default=None). New manga main page URL to be inputted. Give value only if changing target alias.
+
+        Returns
+        -------
+        if group (or target) is not found
+            message : str. Message upon failed checking existence attempt.
+        else
+            message : str. Message upon successfull update target attempt.
         """
         # Find target
         result = BountyHandler._check(website, alias)
