@@ -64,7 +64,7 @@ class BountyHandler:
         Parameters
         ----------
             bounty  : dict. New bounty list data as bounty list blueprint.
-            message : str (deafult=None). Message for successfull reconstruct attempt.
+            message : str (default=None). Message for successfull reconstruct attempt.
             path    : str (deafult='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
 
         Returns
@@ -82,7 +82,7 @@ class BountyHandler:
 
         Parameters
         ----------
-            path    : str (deafult='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
+            path    : str (default='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
 
         Returns
         -------
