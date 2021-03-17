@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import os
 
 from .bounty import BountyHandler
 from .log import LogHandler
@@ -66,7 +67,7 @@ class MangaTracker:
         return data, req.status_code
 
     @staticmethod
-    def _load(alias, response, data, log_path, out_path):
+    def _load(path, alias, response, data):
         """
         Load data to database and log.
 
@@ -75,71 +76,70 @@ class MangaTracker:
             alias   : str. Defined manga alias for output and log result.
             response: int. Request status code while trying to get web page.
             data    : dict. Extracted data from web scraping in dictionary format.
-            log_path: str. Pathname for log file (please insert fullpath to filename).
-            out_path: str. Pathname for output file (please insert fullpath to filename).
+            path    : str. Relative pathname for output and log directory.
         """
-        LogHandler.log_scrape(log_path, alias, response)
-        OutputHandler.load_data(out_path, alias, data)
+        LogHandler.log_scrape(path, alias, response)
+        OutputHandler.load_data(path, alias, data)
 
     # Public Method
     @staticmethod
-    def init_job(bounty_path, log_path='logs', out_path='outputs'):
+    def init_job(bounty_path, result_path):
         """
         Initiate job by reading bounty and define job metadata.
 
         Parameters
         ----------
-            bounty_path : str (default='bounty.json'). Pathname for bounty file (please insert fullpath to filename and extension).
-            log_path    : str (default='logs'). Pathname for log file (please insert fullpath to filename).
-            out_path    : str (default='outputs'). Pathname for output file (please insert fullpath to filename).
+            bounty_path : str. Pathname for bounty file (with extension).
+            result_path : str (default='result'). Relative pathname for output and log directory.
 
         Returns
         -------
-            meta        : dict. Dictionary of job metadata and extracted bounty target list.
+            groups      : list. List of extracted bounty target list.
         """
-        LogHandler.log_start(log_path)
+        # Create folder if not exist
+        try:
+            os.mkdir(result_path)
+        except FileExistsError:
+            pass
 
-        groups = BountyHandler._read_bounty(bounty_path)
-        LogHandler.logging(log_path, '[Init] Target aquired from bounty file. X target(s).')
+        # Initiate job
+        LogHandler.log_start(result_path)
 
-        OutputHandler.init_output(out_path)
-        LogHandler.logging(log_path, '[Init] Output file successfully created.')
+        groups = BountyHandler.read_bounty(bounty_path)
+        LogHandler.logging(result_path, '[Init] Target aquired from bounty file. X target(s).')
 
-        meta = {
-            'groups': groups,
-            'log_path': log_path,
-            'out_path': out_path
-        }
-        return meta
+        OutputHandler.init_output(result_path)
+        LogHandler.logging(result_path, '[Init] Output file successfully created.')
+
+        return groups
 
     @staticmethod
-    def crawl(groups, log_path, out_path):
+    def crawl(groups, result_path):
         """
         Run the web-crawling process.
 
         Parameters
         ----------
-            groups  : list. List of groups (website) and its Manga targets information.
-            log_path: str. Pathname for log file (please insert fullpath to filename).
-            out_path: str. Pathname for output file (please insert fullpath to filename).
+            groups      : list. List of groups (website) and its Manga targets information.
+            result_path : str. Relative pathname for output and log directory.
         """
         for group in groups:
             website = group['website']
             targets = group['targets']
             for (title, url) in targets:
                 data, response = MangaTracker._scrape(url)
-                MangaTracker._load(title, response, data, log_path, out_path)
+                MangaTracker._load(result_path, title, response, data)
 
     @staticmethod
-    def end_job(log_path='logs'):
+    def end_job(result_path):
         """
         End job.
 
         Parameters
         ----------
-            log_path: str (default='logs'). Pathname for log file (please insert fullpath to filename).
+            result_path : str. Relative pathname for output and log directory.
         """
-        LogHandler.log_end(log_path)
+        LogHandler.log_end(result_path)
 
 # Handler Utilization
 MangaTracker.show_bounty = staticmethod(BountyHandler.show_bounty)

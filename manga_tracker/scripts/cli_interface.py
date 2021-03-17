@@ -6,6 +6,7 @@ from .. import MangaTracker
 # Constant
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 BOUNTY_DIR = os.path.join(PROJECT_DIR, 'params/bounty.json')
+RESULT_DIR = 'result'
 
 @click.group()
 @click.version_option(version='1.0')
@@ -20,9 +21,9 @@ def crawl():
     """
     Start web-crawling process.
     """
-    meta = MangaTracker.init_job(BOUNTY_DIR)
-    MangaTracker.crawl(**meta)
-    MangaTracker.end_job()
+    groups = MangaTracker.init_job(BOUNTY_DIR, RESULT_DIR)
+    MangaTracker.crawl(groups, RESULT_DIR)
+    MangaTracker.end_job(RESULT_DIR)
 
 @cli.command('show-bounty')
 def show_bounty():
@@ -93,21 +94,21 @@ def show_log():
     """
     Get log from corresponding job.
     """
-    MangaTracker.show_log()
+    MangaTracker.show_log(RESULT_DIR)
 
 @cli.command('show-output')
 def show_output():
     """
     Show full crawling result in table format.
     """
-    MangaTracker.show_output()
+    MangaTracker.show_output(RESULT_DIR)
 
 @cli.command('result')
 def result():
     """
     Show crawling result summary.
     """
-    MangaTracker.result()
+    MangaTracker.result(RESULT_DIR)
 
 
 if __name__ == '__main__':

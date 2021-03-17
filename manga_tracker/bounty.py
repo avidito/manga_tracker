@@ -5,19 +5,7 @@ class BountyHandler:
     [Static Class] Handler to use and manage bounty list.
     """
 
-    @staticmethod
-    def _read_bounty(path):
-        """
-        Validate and read bounty list from path.
-
-        Parameters
-        ----------
-            path    : str. Pathname for bounty file (with extension).
-        """
-        with open(path, 'r') as f:
-            bounty = json.loads(f.read())
-        return bounty['groups']
-
+    # Private Method
     @staticmethod
     def _check(path, website, target=None):
         """
@@ -25,9 +13,9 @@ class BountyHandler:
 
         Parameters
         ----------
-            path        : str. Pathname for bounty file (with extension).
-            website     : str. To be checked website from bounty groups.
-            target      : str (default=None). To be checked target from website's group. Give value only if checking target existence.
+            path    : str. Pathname for bounty file (with extension).
+            website : str. To be checked website from bounty groups.
+            target  : str (default=None). To be checked target from website's group. Give value only if checking target existence.
 
         Returns
         -------
@@ -37,7 +25,7 @@ class BountyHandler:
         else:
             error_code  : int. (-1) if group doesn't exist. (-2) if target doesn't exist.
         """
-        bounty_list = BountyHandler._read_bounty(path)
+        bounty_list = BountyHandler.read_bounty(path)
 
         # Check Group. If not found, return error
         group = None
@@ -63,9 +51,9 @@ class BountyHandler:
 
         Parameters
         ----------
+            path    : str. Pathname for bounty file (with extension).
             bounty  : dict. New bounty list data as bounty list blueprint.
             message : str (default=None). Message for successfull reconstruct attempt.
-            path    : str. Pathname for bounty file (with extension).
 
         Returns
         -------
@@ -74,6 +62,20 @@ class BountyHandler:
         with open(path, 'w') as f:
             f.write(json.dumps({'groups': bounty}))
         return message
+
+    # Public Method
+    @staticmethod
+    def read_bounty(path):
+        """
+        Validate and read bounty list from path.
+
+        Parameters
+        ----------
+            path    : str. Pathname for bounty file (with extension).
+        """
+        with open(path, 'r') as f:
+            bounty = json.loads(f.read())
+        return bounty['groups']
 
     @staticmethod
     def show_bounty(path):
@@ -88,7 +90,7 @@ class BountyHandler:
         -------
             result  : str. Extracted bounty list with better visual format.
         """
-        bounty_list = BountyHandler._read_bounty(path)
+        bounty_list = BountyHandler.read_bounty(path)
         result = ''
         for bounty in bounty_list:
             result += 'Website: {}\nTargets:\n'.format(bounty['website'])
