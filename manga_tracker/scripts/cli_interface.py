@@ -1,8 +1,15 @@
+import os
 import click
-from manga_tracker import MangaTracker
+
+from .. import MangaTracker
+
+# Constant
+PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
+BOUNTY_DIR = os.path.join(PROJECT_DIR, 'params/bounty.json')
+RESULT_DIR = 'result'
 
 @click.group()
-@click.version_option(version='1.0', prog_name='mantrack')
+@click.version_option(version='1.0')
 def cli():
     """
     CLI Program to Track Updated Manga using Web-Scraping (bs4) with customizeable Manga Targets (Bounty) List.
@@ -14,16 +21,16 @@ def crawl():
     """
     Start web-crawling process.
     """
-    meta = MangaTracker.init_job()
-    MangaTracker.crawl(**meta)
-    MangaTracker.end_job()
+    groups = MangaTracker.init_job(BOUNTY_DIR, RESULT_DIR)
+    MangaTracker.crawl(groups, RESULT_DIR)
+    MangaTracker.end_job(RESULT_DIR)
 
 @cli.command('show-bounty')
 def show_bounty():
     """
     Show all targets in bounty list.
     """
-    result = MangaTracker.show_bounty()
+    result = MangaTracker.show_bounty(BOUNTY_DIR)
     print(result)
 
 @cli.command('add-target')
@@ -40,7 +47,7 @@ def add_target(**kw):
     """
     Add target to bounty list.
     """
-    message = MangaTracker.add_target(kw)
+    message = MangaTracker.add_target(**kw, path=BOUNTY_DIR)
     print(message)
 
 @cli.command('remove-target')
@@ -54,7 +61,7 @@ def remove_target(**kw):
     """
     Remove target from bounty list.
     """
-    message = MangaTracker.remove_target(kw)
+    message = MangaTracker.remove_target(**kw, path=BOUNTY_DIR)
     print(message)
 
 @cli.command('update-target')
@@ -79,7 +86,7 @@ def update_target(**kw):
     if ((kw.get('newalias') == '') and (kw.get('newlink') == '')):
         print("Both newalias and newlink can't be empty at the same time!")
         return
-    message = MangaTracker.update_target(kw)
+    message = MangaTracker.update_target(**kw, path=BOUNTY_DIR)
     print(message)
 
 @cli.command('show-log')
@@ -87,21 +94,21 @@ def show_log():
     """
     Get log from corresponding job.
     """
-    MangaTracker.show_log()
+    MangaTracker.show_log(RESULT_DIR)
 
 @cli.command('show-output')
 def show_output():
     """
     Show full crawling result in table format.
     """
-    MangaTracker.show_output()
+    MangaTracker.show_output(RESULT_DIR)
 
 @cli.command('result')
 def result():
     """
     Show crawling result summary.
     """
-    MangaTracker.result()
+    MangaTracker.result(RESULT_DIR)
 
 
 if __name__ == '__main__':
