@@ -17,13 +17,15 @@ def cli():
     pass
 
 @cli.command('crawl')
-def crawl():
+@click.option('--silent', is_flag=True,
+                help="Flag to silence progress messages.")
+def crawl(silent):
     """
     Start web-crawling process.
     """
-    groups = MangaTracker.init_job(BOUNTY_DIR, RESULT_DIR)
-    MangaTracker.crawl(groups, RESULT_DIR)
-    MangaTracker.end_job(RESULT_DIR)
+    groups = MangaTracker.init_job(BOUNTY_DIR, RESULT_DIR, silent)
+    MangaTracker.crawl(groups, RESULT_DIR, silent)
+    MangaTracker.end_job(RESULT_DIR, silent)
 
 @cli.command('show-bounty')
 def show_bounty():

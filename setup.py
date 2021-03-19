@@ -16,12 +16,7 @@ setup(
     install_requires=[
         'Click',
         'beautifulsoup4',
-        'certifi',
-        'chardet',
-        'idna',
-        'requests',
-        'soupsieve',
-        'urllib3'
+        'requests'
     ],
     entry_points={
         'console_scripts': [

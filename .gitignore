@@ -1,5 +1,5 @@
 venv/
-test/
+*_env/
 result/
 
 plan.txt
