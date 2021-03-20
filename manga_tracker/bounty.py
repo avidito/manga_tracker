@@ -93,7 +93,7 @@ class BountyHandler:
         bounty_list = BountyHandler.read_bounty(path)
         result = []
         for bounty in bounty_list:
-            website = 'Website: {}'.format(bounty['website'])
+            website = bounty['website']
             targets = [[title, link] for title, link in bounty['targets']]
             result.append([website] + targets)
         return result
@@ -117,14 +117,12 @@ class BountyHandler:
         # Find target
         result = BountyHandler._check(path, website)
         if (result == -2):
-            return "Group with website '{}' not found!".format(website)
+            return "Group with website '{}' was not found!".format(website)
         else:
             bounty_list, group = result
 
         # Add target to group
         group['targets'].append([alias, link])
-
-        # Reconstruct bounty file
         message = BountyHandler._reconstruct(path, bounty_list,
                     "Successfully add '{}' to '{}'".format(alias, website))
         return message

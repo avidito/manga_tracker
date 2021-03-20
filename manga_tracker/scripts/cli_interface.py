@@ -36,7 +36,7 @@ def show_bounty():
     header = ['Title', 'Link']
     results = MangaTracker.show_bounty(BOUNTY_DIR)
     for group in results:
-        tbl_website = AsciiTable([[group[0]]])
+        tbl_website = AsciiTable([['Website: ' + group[0]]])
         click.echo(tbl_website.table)
         tbl_targets = AsciiTable([header] + group[1:])
         click.echo(tbl_targets.table)
@@ -50,14 +50,24 @@ def show_bounty():
                 help="Target's alias (or title).",
                 prompt="Manga Name (or Alias)")
 @click.option('--link', '-l',
-                help="Target's page URL.",
+                help="Target's page URL",
                 prompt="Manga Page URL")
 def add_target(**kw):
     """
-    Add target to bounty list.
+    Confirm user input and Add target to bounty list.
     """
-    message = MangaTracker.add_target(**kw, path=BOUNTY_DIR)
-    print(message)
+    # Preview user input
+    keys = ['website', 'alias', 'link']
+    values = [kw[key] for key in keys]
+    columns = ["Website", "Alias", "URL"]
+    preview = [[col, val] for col, val in zip(columns, values)]
+    preview_tbl = AsciiTable([['Key', 'Value']] + preview)
+    click.echo(preview_tbl.table)
+
+    # Confirmation
+    if (click.confirm("Are these input correct?")):
+        message = MangaTracker.add_target(**kw, path=BOUNTY_DIR)
+        click.echo(message)
 
 @cli.command('remove-target')
 @click.option('--website', '-w',
