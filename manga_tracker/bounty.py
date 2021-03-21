@@ -153,17 +153,18 @@ class BountyHandler:
         return message
 
     @staticmethod
-    def update_target(path, website, alias, newalias=None, newlink=None):
+    def update_target(bounty_list, group_id, target_id, website, newalias, newlink, path):
         """
         Update existing target in bounty list.
 
         Parameters
         ----------
-            path    : str. Pathname for bounty file (with extension).
-            website : str. Existing website where the target is grouped.
-            alias   : str. Existing manga title (or alias) to be updated.
-            newalias: str (default=None). New manga title (or alias) for existing manga. Give value only if changing target alias.
-            newlink : str (default=None). New manga main page URL to be inputted. Give value only if changing target alias.
+            bounty_list : dict. Full list of groups from bounty list.
+            group_id    : int. Index of existing group with manga title (or alias) to be updated.
+            target_id   : int. Index of existing target in group with manga title (or alias) to be updated.
+            website     : str. Website where inputted target will be updated.
+            newalias    : str. New manga title (or alias) for existing manga. Give value "" only if not changing target alias.
+            newlink     : str. New manga main page URL to be inputted. Give value "" only if not changing target alias.
 
         Returns
         -------
@@ -172,17 +173,10 @@ class BountyHandler:
         else
             message : str. Message upon successfull update target attempt.
         """
-        # Find target
-        result = BountyHandler.check_target(path, website, alias)
-        if (result[0] == -1):
-            return result[1]
-        else:
-            bounty_list, group_id, target_id = result
-
-        # Edit alias (and/or link) value
         target = bounty_list[group_id]['targets'][target_id]
-        target[0] = newalias if (newalias) else target[0]
-        target[1] = newlink if (newlink) else target[1]
+        oldalias = target[0]
+        target[0] = newalias if (newalias == "") else target[0]
+        target[1] = newlink if (newlink == "") else target[1]
         message = BountyHandler._reconstruct(path, bounty_list,
-                    "Successfully changed '{}' from '{}'".format(alias, website))
+                    "Successfully changed target '{}' from '{}'".format(oldalias, website))
         return message

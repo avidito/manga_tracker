@@ -3,7 +3,8 @@ import click
 from terminaltables import AsciiTable
 
 from .. import MangaTracker
-from .utils import cvt_group_to_table, cvt_target_to_table, cvt_header_to_table
+from .utils import (cvt_group_to_table, cvt_target_to_table,
+                    cvt_header_to_table, cvt_idx_to_target)
 
 # Constant
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -115,38 +116,29 @@ def update_target(**kw):
     """
     if ((kw.get('newalias') == '') and (kw.get('newlink') == '')):
         click.echo("Both newalias and newlink can't be empty at the same time!")
+        return
+
+    meta = { k: kw[k] for k in ('website', 'alias') }
+    result = MangaTracker.check_target(**meta, path=BOUNTY_DIR)
+    if (result[0] == -1):
+        click.echo(result[1])
     else:
-        target_meta = {
-            'website': kw['website'],
-            'alias': kw['alias']
-        }
-        result = MangaTracker.check_target(**target_meta, path=BOUNTY_DIR)
-        if (result[0] == -1):
-            click.echo(result[1])
-        else:
-            bl, gid, tid = result
-            old_target = {
-                'website': bl[gid]['website'],
-                'alias': bl[gid]['targets'][tid][0],
-                'link': bl[gid]['targets'][tid][1]
-            }
-            new_target = {
-                'website': kw['website'],
-                'alias': kw['newalias'],
-                'link': kw['newlink']
-            }
-            preview_old_tbl = cvt_target_to_table(old_target)
-            preview_new_tbl = cvt_target_to_table(new_target)
+        old_target = cvt_idx_to_target(*result)
+        preview_old_tbl = cvt_target_to_table(old_target)
+        click.echo(cvt_header_to_table('Old Target').table)
+        click.echo(preview_old_tbl.table)
+        click.echo('')
 
-            click.echo(cvt_header_to_table('Old Target').table)
-            click.echo(preview_old_tbl.table)
-            click.echo('')
-            click.echo(cvt_header_to_table('New Target').table)
-            click.echo(preview_new_tbl.table)
+        new_target = { k: kw[k] for k in ('website', 'newalias', 'newlink') }
+        new_target['newalias'] = new_target['newalias'] if (new_target['newalias'] != "") else old_target['alias'] + " [no change]"
+        new_target['newlink'] = new_target['newlink'] if (new_target['newlink'] != "") else old_target['link'] + " [no change]"
+        preview_new_tbl = cvt_target_to_table(new_target, new=True)
+        click.echo(cvt_header_to_table('New Target').table)
+        click.echo(preview_new_tbl.table)
 
-            if (click.confirm("Are you sure want to change old target into new target?")):
-                message = MangaTracker.update_target(**kw, path=BOUNTY_DIR)
-                click.echo(message)
+        if (click.confirm("Are you sure want to change old target into new target?")):
+            message = MangaTracker.update_target(*result, **new_target, path=BOUNTY_DIR)
+            click.echo(message)
 
 @cli.command('show-log')
 def show_log():
