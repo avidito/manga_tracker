@@ -90,19 +90,21 @@ class BountyHandler:
                 group_id = id
                 break
         if (group_id is None):
-            return -1, "Group with website '{}' was not found!".format(website)
+            return (-1, "Group with website '{}' was not found!".format(website))
         elif (alias is None):
-            return bounty_list, group_id
+            return (bounty_list, group_id)
 
         # Check Target
         targets = bounty_list[group_id]['targets']
+        result = None
         for id in range(len(targets)):
             if (targets[id][0] == alias):
-                if (duplicate):
-                    return -1, "Target with alias '{}' already exist in '{}' group's!".format(alias, website)
-                else:
-                    return bounty_list, group_id, id
-        return -1, "Target with alias '{}' was not found in '{}' group's!".format(alias, website)
+                result = (bounty_list, group_id, id)
+                break
+        if (duplicate):
+            return (bounty_list, group_id) if (result is None) else (-1, "Target with alias '{}' already exist in '{}' group's!".format(alias, website))
+        else:
+            return result if (result) else (-1, "Target with alias '{}' was not found in '{}' group's!".format(alias, website))
 
     @staticmethod
     def add_target(bounty_list, group_id, website, alias, link, path):
@@ -113,8 +115,10 @@ class BountyHandler:
         ----------
             bounty_list : dict. Full list of groups from bounty list.
             group_id    : int. Index of group with inputted website.
+            website     : str. Website where new target will be added.
             alias       : str. New manga title (or alias) to be inputted.
             link        : str. New manga main page URL to be inputted.
+            path        : str. Pathname for bounty file (with extension).
 
         Returns
         -------
@@ -126,28 +130,23 @@ class BountyHandler:
         return message
 
     @staticmethod
-    def remove_target(path, website, alias):
+    def remove_target(bounty_list, group_id, target_id, path):
         """
         Remove target from bounty list.
 
         Parameters
         ----------
+            bounty_list : dict. Full list of groups from bounty list.
+            group_id    : int. Index of existing group with manga title (or alias) to be removed.
+            target_id   : int. Index of existing target in group with manga title (or alias) to be removed.
             path        : str. Pathname for bounty file (with extension).
-            bounty_list : str. Existing website where the target is grouped.
-            group       : str. Existing manga title (or alias) to be removed.
 
         Returns
         -------
             message : str. Message upon successfull remove target attempt.
         """
-        # Find target
-        result = BountyHandler.check_target(path, website, alias)
-        if (result[0] == -1):
-            return result[1]
-        else:
-            bounty_list, group_id, target_id = result
-
-        # Remove target from group
+        website = bounty_list[group_id]['website']
+        alias = bounty_list[group_id]['targets'][target_id][0]
         bounty_list[group_id]['targets'].pop(target_id)
         message = BountyHandler._reconstruct(path, bounty_list,
                     "Successfully remove '{}' from '{}'".format(alias, website))

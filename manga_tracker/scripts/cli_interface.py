@@ -91,7 +91,7 @@ def remove_target(**kw):
         click.echo(preview_tbl.table)
 
         if (click.confirm("Are these input correct?")):
-            message = MangaTracker.remove_target(**kw, path=BOUNTY_DIR)
+            message = MangaTracker.remove_target(*result, path=BOUNTY_DIR)
             click.echo(message)
 
 @cli.command('update-target')
