@@ -160,7 +160,6 @@ def show_output():
     """
     output = MangaTracker.show_output(RESULT_DIR, DELIMITER)
     click.echo(cvt_output_to_table(output).table)
-    # click.echo(output)
 
 @cli.command('result')
 def result():

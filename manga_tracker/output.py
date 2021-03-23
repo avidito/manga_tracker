@@ -6,6 +6,33 @@ class OutputHandler:
     """
 
     @staticmethod
+    def _format_viz(data):
+        """
+        Format data for visualisation
+
+        Params
+        ------
+            data        : list. Output data in 2D list format.
+
+        Returns
+        -------
+            formatted   : tuple. Formatted output data for visualization.
+        """
+        _f = (
+            lambda x: x,                                              # alias
+            lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # title
+            lambda x: 'Ongoing' if (x) else 'Completed',              # ongoing
+            lambda x: x,                                              # updated_at
+            lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # latest_chapter
+            lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # latest_chapter_link
+        )
+        formatted = []
+        for row in data:
+            f_row = [_f[i](row[i]) for i in range(len(row))]
+            formatted.append(f_row)
+        return formatted
+
+    @staticmethod
     def init_output(path, columns, delimiter):
         """
         Initiate output file by pathname.
@@ -60,9 +87,12 @@ class OutputHandler:
         """
         out_path = path + '/outputs.txt'
         with open(out_path, 'r', encoding="utf-8") as f:
-            raw = f.read()
+            raw = f.read()[:-1]
         output = [row.split(delimiter) for row in raw.split('\n')]
-        return output
+
+        # Format Visualization
+        formatted = OutputHandler._format_viz(output)
+        return formatted
 
     @staticmethod
     def result(path, delimiter):
