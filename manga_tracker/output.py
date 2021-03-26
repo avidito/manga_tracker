@@ -46,7 +46,7 @@ class OutputHandler:
             content : list. Transformed data in list of list format.
         """
         _tr = (
-            lambda x: (x),                                              # website
+            lambda x: x,                                              # website
             lambda x: x,                                              # alias
             lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # title
             lambda x: 'Ongoing' if (x) else 'Completed',              # ongoing
@@ -85,12 +85,21 @@ class OutputHandler:
             lambda x: x,                                              # title
             lambda x: x,                                              # website
             lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # chapter
-            lambda x: re.sub('http[s]*://', '', x),                                              # chapter_link
+            lambda x: re.sub('http[s]*://', '', x),                   # chapter_link
         )
-        header = er_data[0]
+        header = ['Updated', 'Update Time', 'Title', 'Website', 'Chapter', 'Chapter Link']
         content = [[_tr[i](val) for i, val in enumerate(row)] for row in er_data[1:]]
-        content.sort(key=operator.itemgetter(0, 1))
+        content.sort(key=operator.itemgetter(0, 1, 2))
 
+        # Updated Time Labelling
+        mapper = {
+            1: 'Today',
+            2: 'Last 7 Days',
+            3: 'Last 30 Days',
+            4: 'Older'
+        }
+        for row in content:
+            row[0] = mapper[row[0]]
         return header, content
 
     @staticmethod

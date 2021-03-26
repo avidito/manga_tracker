@@ -79,7 +79,7 @@ class LogHandler:
 
         Parameters
         ----------
-        path    : str. Relative pathname for log file directory (result directory).
+            path    : str. Relative pathname for log file directory (result directory).
         """
         end_time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
         LogHandler.logging(path, '[Job] End Time: {}'.format(end_time), silent)
@@ -91,9 +91,38 @@ class LogHandler:
 
         Parameters
         ----------
-        path    : str. Relative pathname for log file directory (result directory).
+            path    : str. Relative pathname for log file directory (result directory).
+
+        Returns
+        -------
+            logs    : str. Log file in string format.
         """
         log_path = path + '/logs.txt'
         with open(log_path, 'r') as f:
             logs = f.read()
         return logs
+
+    @staticmethod
+    def extract_meta(path):
+        """
+        Extracting meta information about latest job from log file.
+
+        Parameters
+        ----------
+            path    : str. Relative pathname for log file directory (result directory).
+
+        Returns
+        -------
+            meta    : dict. Meta information in dictionary format.
+        """
+        logs = LogHandler.show_log(path).split('\n')
+        meta = {
+            'job_id': logs[0][-12:],
+            'start_time': logs[1][-19:],
+            'end_time': logs[-2][-19:],
+            'bounty_path': logs[2].split('"')[1],
+            'result_path': logs[3].split('"')[1],
+            'counter': logs[2].split('.')[-1],
+            'success': sum([1 if (row[-3:] == '200') else 0 for row in logs])
+        }
+        return meta

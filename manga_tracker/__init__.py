@@ -114,11 +114,11 @@ class MangaTracker:
         w_count = sum([1 for group in groups])
         t_count = sum([1 for group in groups for target in group['targets']])
         LogHandler.logging(path=result_path, silent=silent,
-                    message='[Init] Target aquired from bounty file from "{}". {} target(s) from {} website(s).'.format(bounty_path, t_count, w_count))
+                    message='[Init] Target aquired from bounty file from "{}". {} target(s) from {} website(s)'.format(bounty_path, t_count, w_count))
 
         OutputHandler.init_output(result_path, columns, delimiter)
         LogHandler.logging(path=result_path, silent=silent,
-                    message='[Init] Output file successfully created at "{}".'.format(result_path))
+                    message='[Init] Output file successfully created at "{}"'.format(result_path))
 
         return groups
 
@@ -163,3 +163,4 @@ MangaTracker.update_target = staticmethod(BountyHandler.update_target)
 MangaTracker.show_log = staticmethod(LogHandler.show_log)
 MangaTracker.show_output = staticmethod(OutputHandler.show_output)
 MangaTracker.result = staticmethod(OutputHandler.result)
+MangaTracker.extract_meta = staticmethod(LogHandler.extract_meta)

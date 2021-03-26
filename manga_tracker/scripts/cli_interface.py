@@ -167,6 +167,8 @@ def result():
     Show crawling result summary.
     """
     result = MangaTracker.result(RESULT_DIR, DELIMITER)
+    meta = MangaTracker.extract_meta(RESULT_DIR)
+    click.echo(meta)
     click.echo(cvt_output_to_table(result).table)
 
 if __name__ == '__main__':
