@@ -1,10 +1,35 @@
 from datetime import datetime, timedelta
 import operator
+import re
 
 class OutputHandler:
     """
     [Static Method] Handler to create and show job outputs.
     """
+    @staticmethod
+    def _date_grouper(today_dt, date_str, pattern='%d-%m-%Y %H:%M'):
+        """
+        Function to convert date into time category.
+
+        Params
+        ------
+            today_dt: date. System current date.
+            date_str: str. Date in string format.
+            pattern : str (default='%d-%m-%Y %H:%M'). String literal to extract date data.
+
+        Returns
+        -------
+            group   : int. Time group (1 for 'today', 2 for 'last 7 days', 3 for 'last 30 days', 4 for 'older')
+        """
+        query_dt = datetime.strptime(date_str, pattern).date()
+        if (query_dt == today_dt):
+            return 1
+        elif (query_dt >= today_dt - timedelta(days=7)):
+            return 2
+        elif (query_dt >= today_dt - timedelta(days=30)):
+            return 3
+        else:
+            return 4
 
     @staticmethod
     def _output_viz(data):
@@ -17,10 +42,11 @@ class OutputHandler:
 
         Returns
         -------
-            formatted   : list. Formatted output data for output visualization.
+            header  : list. Header in list of string format.
+            content : list. Transformed data in list of list format.
         """
         _tr = (
-            lambda x: x,                                              # website
+            lambda x: (x),                                              # website
             lambda x: x,                                              # alias
             lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # title
             lambda x: 'Ongoing' if (x) else 'Completed',              # ongoing
@@ -28,8 +54,44 @@ class OutputHandler:
             lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # latest_chapter
             lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # latest_chapter_link
         )
-        formatted = [[_tr[i](val) for i, val in enumerate(row)] for row in data]
-        return formatted[0], formatted[1:]
+        header = data[0]
+        content = [[_tr[i](val) for i, val in enumerate(row)] for row in data[1:]]
+        content.sort(key=operator.itemgetter(0, 1))
+        return header, content
+
+    @staticmethod
+    def _result_viz(data):
+        """
+        Rearrange and transform output data for result visualization.
+
+        Params
+        ------
+            data        : list. Output data in 2D list format.
+
+        Returns
+        -------
+            header  : list. Header in list of string format.
+            content : list. Transformed data in list of list format.
+        """
+        # Extract and Rearrange Column
+        _er = (4, 4, 1, 0, 5, 6)
+        er_data = [[ row[col_id] for col_id in _er] for row in data]
+
+        # Transform
+        today = datetime.now().date()
+        _tr = (
+            lambda x: OutputHandler._date_grouper(today, x),          # update_tag
+            lambda x: x,                                              # update_at
+            lambda x: x,                                              # title
+            lambda x: x,                                              # website
+            lambda x: ''.join((x[:17], '...')) if len(x) > 20 else x, # chapter
+            lambda x: re.sub('http[s]*://', '', x),                                              # chapter_link
+        )
+        header = er_data[0]
+        content = [[_tr[i](val) for i, val in enumerate(row)] for row in er_data[1:]]
+        content.sort(key=operator.itemgetter(0, 1))
+
+        return header, content
 
     @staticmethod
     def init_output(path, columns, delimiter):
@@ -92,7 +154,6 @@ class OutputHandler:
 
         # Format Visualization
         header, content = OutputHandler._output_viz(output)
-        content.sort(key=operator.itemgetter(0, 1))
         formatted = [header] + content
         return formatted
 
@@ -104,41 +165,12 @@ class OutputHandler:
         Parameters
         ----------
             path        : str. Relative pathname for output file directory (result directory).
-            delimiter   : str (default="|"). Delimiter used for separating data.
+            delimiter   : str. Delimiter used for separating data.
         """
         out_path = path + '/outputs.txt'
         with open(out_path, 'r', encoding="utf-8") as f:
             raw = f.read()
         result = [row.split(delimiter) for row in raw.strip().split('\n')]
-
-        # Grouping by Update Time
-        updated_today = []
-        updated_last_7 = []
-        updated_last_30 = []
-        updated_older = []
-        today_date = datetime.now().date()
-        for row in result[1:]:
-            date = datetime.strptime(row[4], '%d-%m-%Y %H:%M').date()
-            if (date == today_date):
-                updated_today.append(row)
-            elif (date >= (today_date - timedelta(days=7))):
-                updated_last_7.append(row)
-            elif (date >= (today_date - timedelta(days=30))):
-                updated_last_30.append(row)
-            else:
-                updated_older.append(row)
-
-        # Show Report
-        print("--- Manga Tracker Web-Crawling Result ---")
-        print("Updated Today:")
-        for row in updated_today:
-            print(row)
-        print("\nUpdated in the Last 7 Days:")
-        for row in updated_last_7:
-            print(row)
-        print("\nUpdated in the Last 30 Days:")
-        for row in updated_last_30:
-            print(row)
-        print("\nUpdated More Than 30 Days ago:")
-        for row in updated_older:
-            print(row)
+        header, content = OutputHandler._result_viz(result)
+        formatted = [header] + content
+        return formatted
