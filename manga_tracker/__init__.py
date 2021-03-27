@@ -15,7 +15,7 @@ class MangaTracker:
     @staticmethod
     def _preproccess(data):
         """
-        Return preprocessed data.
+        Preprocessed data.
 
         Parameters
         ----------
@@ -25,9 +25,17 @@ class MangaTracker:
         -------
             processed   : dict. Proccesed data from preprocessing input data.
         """
-        processed = data.copy()
-        processed['ongoing'] = 1 if (processed['ongoing'].lower() == 'ongoing') else  0
-        processed['updated_at'] = datetime.strptime(processed['updated_at'], '%b %d,%Y - %H:%M %p').strftime('%d-%m-%Y %H:%M')
+        ['website', 'alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link']
+        _pr = {
+            'website': lambda x: x,
+            'alias': lambda x: x,
+            'title': lambda x: x,
+            'ongoing': lambda x: 1 if (x.lower() == 'ongoing') else  0,
+            'updated_at': lambda x: datetime.strptime(x, '%b %d,%Y - %H:%M %p').strftime('%d-%m-%Y %H:%M'),
+            'latest_chapter': lambda x: x,
+            'latest_chapter_link': lambda x: x,
+        }
+        processed = { k: _pr[k](data[k]) for k in data.keys()}
         return processed
 
     @staticmethod
@@ -67,31 +75,36 @@ class MangaTracker:
         return data, req.status_code
 
     @staticmethod
-    def _load(path, alias, response, data):
+    def _load(path, website, alias, response, data, columns, delimiter, silent):
         """
-        Load data to database and log.
+        Load data to output and log file.
 
         Parameters
         ----------
-            alias   : str. Defined manga alias for output and log result.
-            response: int. Request status code while trying to get web page.
-            data    : dict. Extracted data from web scraping in dictionary format.
-            path    : str. Relative pathname for output and log directory.
+            path        : str. Pathname for output and log directory.
+            website     : str. Website's name of scraped data.
+            alias       : str. Manga's alias of scraped data.
+            response    : int. Request status code while trying to get web page.
+            data        : dict. Extracted data from web scraping in dictionary format.
+            delimiter   : str. Data delimiter in output file.
+            silent      : boolean. Flag to silence progress messages.
         """
-        LogHandler.log_scrape(path, alias, response)
-        OutputHandler.load_data(path, alias, data)
+        LogHandler.log_scrape(path, alias, response, silent)
+        OutputHandler.load_data(path, website, alias, data, columns, delimiter)
 
     # Public Method
     @staticmethod
-    def init_job(bounty_path, result_path):
+    def init_job(bounty_path, result_path, columns, delimiter, silent=False):
         """
         Initiate job by reading bounty and define job metadata.
 
         Parameters
         ----------
             bounty_path : str. Pathname for bounty file (with extension).
-            result_path : str (default='result'). Relative pathname for output and log directory.
-
+            result_path : str. Pathname for output and log directory.
+            columns     : list. List of columns name for output table.
+            delimiter   : str. Delimiter for separating data.
+            silent      : boolean (default=False). Flag to silence progress messages.
         Returns
         -------
             groups      : list. List of extracted bounty target list.
@@ -103,18 +116,22 @@ class MangaTracker:
             pass
 
         # Initiate job
-        LogHandler.log_start(result_path)
+        LogHandler.log_start(result_path, silent)
 
         groups = BountyHandler.read_bounty(bounty_path)
-        LogHandler.logging(result_path, '[Init] Target aquired from bounty file. X target(s).')
+        w_count = sum([1 for group in groups])
+        t_count = sum([1 for group in groups for target in group['targets']])
+        LogHandler.logging(path=result_path, silent=silent,
+                    message=f'[Init] Target aquired from bounty file from "{bounty_path}". {t_count} target(s) from {w_count} website(s)')
 
-        OutputHandler.init_output(result_path)
-        LogHandler.logging(result_path, '[Init] Output file successfully created.')
+        OutputHandler.init_output(result_path, columns, delimiter)
+        LogHandler.logging(path=result_path, silent=silent,
+                    message=f'[Init] Output file successfully created at "{result_path}"')
 
         return groups
 
     @staticmethod
-    def crawl(groups, result_path):
+    def crawl(groups, result_path, columns, delimiter, silent):
         """
         Run the web-crawling process.
 
@@ -122,30 +139,36 @@ class MangaTracker:
         ----------
             groups      : list. List of groups (website) and its Manga targets information.
             result_path : str. Relative pathname for output and log directory.
+            columns     : list. List of columns name for output table.
+            delimiter   : str. Delimiter for separating data.
+            silent      : boolean (default=False). Flag to silence progress messages.
         """
         for group in groups:
             website = group['website']
             targets = group['targets']
             for (title, url) in targets:
                 data, response = MangaTracker._scrape(url)
-                MangaTracker._load(result_path, title, response, data)
+                MangaTracker._load(result_path, website, title, response, data, columns, delimiter, silent)
 
     @staticmethod
-    def end_job(result_path):
+    def end_job(result_path, silent):
         """
-        End job.
+        Logging job's end time.
 
         Parameters
         ----------
-            result_path : str. Relative pathname for output and log directory.
+            result_path : str. Pathname for output and log directory.
+            silent      : boolean (default=False). Flag to silence progress messages.
         """
-        LogHandler.log_end(result_path)
+        LogHandler.log_end(result_path, silent)
 
 # Handler Utilization
 MangaTracker.show_bounty = staticmethod(BountyHandler.show_bounty)
+MangaTracker.check_target = staticmethod(BountyHandler.check_target)
 MangaTracker.add_target = staticmethod(BountyHandler.add_target)
 MangaTracker.remove_target = staticmethod(BountyHandler.remove_target)
 MangaTracker.update_target = staticmethod(BountyHandler.update_target)
 MangaTracker.show_log = staticmethod(LogHandler.show_log)
 MangaTracker.show_output = staticmethod(OutputHandler.show_output)
 MangaTracker.result = staticmethod(OutputHandler.result)
+MangaTracker.extract_meta = staticmethod(LogHandler.extract_meta)
