@@ -1,4 +1,22 @@
+from os import getcwd
+from os.path import realpath, join, dirname
 from terminaltables import AsciiTable
+
+def configure_cli():
+    """
+    Setup CLI constant.
+
+    Returns
+    -------
+        cfg : dict. Configuration object contains program constant.
+    """
+    cfg = {
+        'BOUNTY_DIR': realpath(join(join(dirname(dirname(__file__)), 'params'), 'bounty.json')),
+        'RESULT_DIR': realpath(join(getcwd(), 'result')),
+        'COLUMNS': ['website', 'alias', 'title', 'ongoing', 'updated_at', 'latest_chapter', 'latest_chapter_link'],
+        'DELIMITER':'|'
+    }
+    return cfg
 
 def cvt_group_to_table(group):
     """

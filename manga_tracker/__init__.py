@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-import os
+from os import mkdir
+import time
 
 from .bounty import BountyHandler
 from .log import LogHandler
@@ -111,7 +112,7 @@ class MangaTracker:
         """
         # Create folder if not exist
         try:
-            os.mkdir(result_path)
+            mkdir(result_path)
         except FileExistsError:
             pass
 
@@ -149,7 +150,8 @@ class MangaTracker:
             for (title, url) in targets:
                 data, response = MangaTracker._scrape(url)
                 MangaTracker._load(result_path, website, title, response, data, columns, delimiter, silent)
-
+                time.sleep(10)
+                
     @staticmethod
     def end_job(result_path, silent):
         """
