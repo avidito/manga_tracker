@@ -6,7 +6,7 @@ with open('README.md', 'r', encoding='utf8') as f:
 setup(
     name='mantrack',
     version='1.0.0',
-    description='A simple web-crawler to check manga update',
+    description='CLI program to track your favorite manga updates.',
     url='https://github.com/avidito/manga_tracker',
     author='Leonardi Fabianto',
     author_email='av.leonardif@gmail.com',
@@ -16,7 +16,8 @@ setup(
     install_requires=[
         'Click',
         'beautifulsoup4',
-        'requests'
+        'requests',
+        'terminaltables'
     ],
     entry_points={
         'console_scripts': [

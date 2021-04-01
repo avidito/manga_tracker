@@ -34,6 +34,10 @@ class BountyHandler:
         Parameters
         ----------
             path    : str. Pathname for bounty file (with extension).
+
+        Returns
+        -------
+            groups  : list. All of listed groups in bounty list.
         """
         with open(path, 'r') as f:
             bounty = json.loads(f.read())
